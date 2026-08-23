@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full text-gray-800 font-sans antialiased flex flex-col">
+
+  <%- include('partials/headerAdmin') %>
+
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
+    <div class="w-full space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5 gap-4">
+        <div>
+          <h2 class="text-3xl font-bold tracking-tight text-gray-900">Portal Berita Pasar Modal</h2>
+          <p class="text-sm text-gray-500 mt-1">Update terkini pasar saham, komoditas, dan politik finansial Indonesia</p>
+        </div>
+
+        <!-- Filter Category Tabs -->
+        <div class="inline-flex rounded-lg bg-gray-200 p-1 border border-gray-200">
+          <button onclick="setCategory('latest')" id="tab-latest" class="category-tab px-4 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all">
+            Paling Baru
+          </button>
+          <button onclick="setCategory('komoditas')" id="tab-komoditas" class="category-tab px-4 py-2 text-sm font-semibold rounded-md text-gray-600 hover:text-gray-900 transition-all">
+            Komoditas
+          </button>
+          <button onclick="setCategory('politik')" id="tab-politik" class="category-tab px-4 py-2 text-sm font-semibold rounded-md text-gray-600 hover:text-gray-900 transition-all">
+            Politik
+          </button>
+        </div>
+      </div>
+      
+      <!-- News Grid Container -->
+      <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Loading State -->
+        <div class="col-span-full text-center py-12 text-gray-500 font-medium">
+          <svg class="animate-spin h-8 w-8 mx-auto text-blue-600 mb-3" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Memuat berita terkini...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentCategory = 'latest';
+
+    function logout() {
+      localStorage.removeItem('portfolio_token');
+      localStorage.removeItem('portfolio_user');
+      window.location.href = '/';
+    }
+
+    async function fetchNews(category = 'latest') {
+      const container = document.getElementById('news-container');
+      container.innerHTML = `
+        <div class="col-span-full text-center py-12 text-gray-500 font-medium">
+          <svg class="animate-spin h-8 w-8 mx-auto text-blue-600 mb-3" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Memuat berita terkini...
+        </div>
+      `;
+
+      try {
+        const response = await fetch('/api/news?category=' + category);
+        const data = await response.json();
+
+        if (data.success && data.articles.length > 0) {
+          container.innerHTML = data.articles.map(article => `
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col justify-between">
+              <div>
+                <div class="h-48 bg-gray-100 overflow-hidden relative">
+                  <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" onerror="this.src='https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop&q=60'">
+                  <span class="absolute top-3 left-3 bg-gray-900/80 text-white text-xs font-semibold px-2.5 py-1 rounded-md backdrop-blur-sm">
+                    ${article.category}
+                  </span>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-lg font-bold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">
+                    <a href="${article.link}" target="_blank" rel="noopener noreferrer">${article.title}</a>
+                  </h3>
+                  <p class="mt-3 text-sm text-gray-500 line-clamp-3 leading-relaxed">${article.snippet}</p>
+                </div>
+              </div>
+              <div class="p-6 pt-0 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400 mt-4">
+                <span>${article.pubDate}</span>
+                <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-semibold hover:underline flex items-center gap-1">
+                  Baca Selengkapnya
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = `
+            <div class="col-span-full text-center py-12 text-gray-500">
+              Tidak ada berita yang ditemukan untuk kategori ini.
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12 text-red-500 font-medium">
+            Gagal mengambil data berita. Silakan coba lagi nanti.
+          </div>
+        `;
+      }
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+        tab.classList.add('text-gray-600');
+      });
+
+      const activeTab = document.getElementById('tab-' + cat);
+      if (activeTab) {
+        activeTab.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+        activeTab.classList.remove('text-gray-600');
+      }
+
+      fetchNews(cat);
+    }
+
+    window.onload = () => {
+      fetchNews('latest');
+    };
+  </script>
+</body>
+</html>

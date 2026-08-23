@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Porto Client - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full text-gray-800 font-sans antialiased flex flex-col">
+
+  <%- include('partials/headerAdmin') %>
+
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
+    <div class="w-full space-y-8">
+      <div class="flex items-center justify-between border-b border-gray-200 pb-5">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Pantau Portofolio Klien</h2>
+      </div>
+
+      <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex gap-4 items-center">
+            <h3 class="text-lg font-medium text-gray-900">Pilih Klien:</h3>
+            <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              <option value="2">teman (User ID: 2)</option>
+              <option value="all">Semua Klien</option>
+            </select>
+          </div>
+          <button class="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center">
+            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            Refresh
+          </button>
+        </div>
+        
+        <div class="overflow-hidden ring-1 ring-black ring-opacity-5 rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Klien</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Ticker</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Harga Rata-Rata</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Lot</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Investasi (IDR)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              <!-- Placeholder Data -->
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">teman (2)</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-blue-600">BBCA</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">Rp 10.200</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">50</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">Rp 51.000.000</td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">teman (2)</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-blue-600">BREN</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">Rp 8.500</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">100</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">Rp 85.000.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    function logout() {
+      localStorage.removeItem('portfolio_token');
+      localStorage.removeItem('portfolio_user');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Client</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full text-gray-800 font-sans antialiased flex flex-col">
+
+  <%- include('partials/headerClient') %>
+
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
+    <div class="w-full space-y-8">
+      <div class="flex items-center justify-between border-b border-gray-200 pb-5">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Pasar Saham Real-Time</h2>
+      </div>
+      
+      <!-- Real Time Chart -->
+      <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Grafik Pergerakan Harga (TradingView)</h3>
+        <div class="flex gap-2 mb-6">
+          <input type="text" id="chart-ticker-input" placeholder="Contoh: IDX:BBCA" value="IDX:BBCA" class="px-4 py-2 border border-gray-300 rounded-lg text-sm uppercase w-full max-w-xs focus:ring-green-500 focus:border-green-500">
+          <button onclick="loadChart()" class="px-6 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition-colors">Muat Ulang</button>
+        </div>
+        <!-- TradingView Widget Container -->
+        <div id="tradingview-widget-container" class="w-full h-[500px] border border-gray-100 rounded-lg overflow-hidden"></div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    function logout() {
+      localStorage.removeItem('portfolio_token');
+      localStorage.removeItem('portfolio_user');
+      window.location.href = '/';
+    }
+
+    // Chart Loading logic
+    function loadChart() {
+      const container = document.getElementById('tradingview-widget-container');
+      container.innerHTML = ''; // clear existing
+      const ticker = document.getElementById('chart-ticker-input').value || 'IDX:BBCA';
+
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = "https://s3.tradingview.com/tv.js";
+      script.onload = () => {
+        new TradingView.widget({
+          "autosize": true,
+          "symbol": ticker,
+          "interval": "D",
+          "timezone": "Asia/Jakarta",
+          "theme": "light",
+          "style": "1",
+          "locale": "id",
+          "enable_publishing": false,
+          "backgroundColor": "#ffffff",
+          "gridColor": "#f3f4f6",
+          "hide_top_toolbar": false,
+          "hide_legend": false,
+          "save_image": false,
+          "container_id": "tradingview-widget-container"
+        });
+      };
+      document.head.appendChild(script);
+    }
+    
+    window.onload = () => {
+      loadChart();
+    };
+  </script>
+</body>
+</html>

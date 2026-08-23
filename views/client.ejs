@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portfolio Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full text-gray-800 font-sans antialiased flex flex-col">
+
+  <%- include('partials/headerClient') %>
+
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
+    <div class="w-full space-y-8">
+      <h2 class="text-2xl font-bold text-gray-900">My Portfolio</h2>
+      
+      <!-- Real Time Chart -->
+      <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+        <h3 class="text-md font-medium text-gray-900 mb-4">Real-Time Chart Viewer</h3>
+        <div class="flex gap-2 mb-4">
+          <input type="text" id="chart-ticker-input" placeholder="IDX:BBCA" value="IDX:BBCA" class="px-3 py-2 border border-gray-300 rounded-md text-sm uppercase flex-grow max-w-xs">
+          <button onclick="loadChart()" class="px-4 py-2 bg-gray-800 text-white rounded-md text-sm">Load Chart</button>
+        </div>
+        <!-- TradingView Widget Container -->
+        <div id="tradingview-widget-container" class="w-full h-[400px]"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Portfolio Table -->
+        <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Managed Stocks</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticker</th>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Price</th>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
+                </tr>
+              </thead>
+              <tbody id="portfolio-list" class="bg-white divide-y divide-gray-200">
+                <!-- JS injected -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Deposits Table -->
+        <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Account / Deposit History</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                </tr>
+              </thead>
+              <tbody id="deposit-list" class="bg-white divide-y divide-gray-200">
+                <!-- JS injected -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let jwtToken = localStorage.getItem('portfolio_token');
+    let currentUser = JSON.parse(localStorage.getItem('portfolio_user') || 'null');
+
+    window.onload = () => {
+      if (!jwtToken || !currentUser || currentUser.role !== 'client') {
+        window.location.href = '/'; // redirect to login
+        return;
+      }
+      document.getElementById('user-email').innerText = currentUser.username;
+      
+      loadClientData();
+      loadChart(); // Load default chart
+    };
+
+    function logout() {
+      localStorage.removeItem('portfolio_token');
+      localStorage.removeItem('portfolio_user');
+      window.location.href = '/';
+    }
+
+    function formatNumber(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(num);
+    }
+
+    function formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('id-ID');
+    }
+
+    // Chart Loading logic
+    function loadChart() {
+      const container = document.getElementById('tradingview-widget-container');
+      container.innerHTML = ''; // clear existing
+      const ticker = document.getElementById('chart-ticker-input').value || 'IDX:BBCA';
+
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = "https://s3.tradingview.com/tv.js";
+      script.onload = () => {
+        new TradingView.widget({
+          "autosize": true,
+          "symbol": ticker,
+          "interval": "D",
+          "timezone": "Asia/Jakarta",
+          "theme": "light",
+          "style": "1",
+          "locale": "id",
+          "enable_publishing": false,
+          "backgroundColor": "#ffffff",
+          "gridColor": "#f3f4f6",
+          "hide_top_toolbar": false,
+          "hide_legend": false,
+          "save_image": false,
+          "container_id": "tradingview-widget-container"
+        });
+      };
+      document.head.appendChild(script);
+    }
+
+    async function loadClientData() {
+      try {
+        const portRes = await fetch(API_BASE + '/api/portfolio/my', {
+          headers: { 'Authorization': `Bearer ${jwtToken}` }
+        });
+        const portData = await portRes.json();
+        const pList = document.getElementById('portfolio-list');
+        pList.innerHTML = '';
+        if (portData.portfolio) {
+          portData.portfolio.forEach(p => {
+            pList.innerHTML += `
+              <tr>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${formatDate(p.transaction_date)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${p.ticker}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${formatNumber(p.buy_price)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${p.quantity}</td>
+              </tr>
+            `;
+          });
+        }
+
+        const depRes = await fetch(API_BASE + '/api/deposits/my', {
+          headers: { 'Authorization': `Bearer ${jwtToken}` }
+        });
+        const depData = await depRes.json();
+        const dList = document.getElementById('deposit-list');
+        dList.innerHTML = '';
+        if (depData.deposits) {
+          depData.deposits.forEach(d => {
+            dList.innerHTML += `
+              <tr>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${formatDate(d.date)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${formatNumber(d.amount)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${d.notes || '-'}</td>
+              </tr>
+            `;
+          });
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
+

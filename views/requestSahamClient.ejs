@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permintaan Saham - Client</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full text-gray-800 font-sans antialiased flex flex-col">
+
+  <%- include('partials/headerClient') %>
+
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
+    <div class="w-full space-y-8">
+      <div class="flex items-center justify-between border-b border-gray-200 pb-5">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Buat Permintaan Saham</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Request Form -->
+        <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Form Request Pembelian Baru</h3>
+          <p class="text-sm text-gray-500 mb-6">Ajukan permintaan pembelian saham kepada admin pengelola portofolio Anda.</p>
+          <form class="space-y-4" onsubmit="event.preventDefault(); alert('Request dikirim ke Admin!');">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Kode Saham (Ticker)</label>
+              <input type="text" placeholder="Contoh: BBCA" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm uppercase">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Jumlah Target (Lot)</label>
+              <input type="number" min="1" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Catatan/Alasan (Opsional)</label>
+              <textarea rows="3" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" placeholder="Tuliskan catatan Anda di sini..."></textarea>
+            </div>
+            <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 transition-colors">Kirim Permintaan</button>
+          </form>
+        </div>
+
+        <!-- Request History -->
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">Riwayat Permintaan</h3>
+          </div>
+          <ul class="divide-y divide-gray-200">
+            <li class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-bold text-gray-900">BMRI <span class="text-gray-500 font-normal"> - 100 Lot</span></p>
+                  <p class="text-xs text-gray-500 mt-1">Diajukan: 23 Aug 2026</p>
+                </div>
+                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">Menunggu</span>
+              </div>
+            </li>
+            <li class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-bold text-gray-900">GOTO <span class="text-gray-500 font-normal"> - 500 Lot</span></p>
+                  <p class="text-xs text-gray-500 mt-1">Diajukan: 22 Aug 2026</p>
+                </div>
+                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">Menunggu</span>
+              </div>
+            </li>
+            <li class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-bold text-gray-900">BREN <span class="text-gray-500 font-normal"> - 50 Lot</span></p>
+                  <p class="text-xs text-gray-500 mt-1">Diajukan: 10 Aug 2026</p>
+                </div>
+                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Disetujui</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    function logout() {
+      localStorage.removeItem('portfolio_token');
+      localStorage.removeItem('portfolio_user');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const connectDatabase = require('../config/db');
+
+const app = express();
+
+// Apply Global Middlewares
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Configure EJS View Engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../views'));
+
+// Serve static files from the public folder (CSS, images, etc)
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Lazy Database Connection & Syncing (ideal for serverless cold-starts)
+let databaseReady = false;
+let databasePromise = null;
+
+app.use(async (req, res, next) => {
+  try {
+    if (!databaseReady) {
+      if (!databasePromise) {
+        databasePromise = connectDatabase();
+      }
+      await databasePromise;
+      databaseReady = true;
+    }
+    next();
+  } catch (error) {
+    console.error('Database connection failed in serverless lifecycle:', error);
+    databasePromise = null; // Reset promise to retry on next request
+    return res.status(500).json({
+      message: 'Database initialization failed. Please contact administrator or check logs.'
+    });
+  }
+});
+
+// Mount routes
+app.use('/api', require('../routes/api'));
+
+// Dynamic Page Routing for EJS
+app.get('/', (req, res) => {
+  res.render('index');
+});
+
+// Serve .html pages as .ejs views (without extension)
+app.get('/:page.html', (req, res) => {
+  res.render(req.params.page);
+});
+
+// Fallback for paths without .html
+app.get('/:page', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.render(req.params.page, (err, html) => {
+    if (err) {
+      return res.status(404).json({ message: 'Page not found' });
+    }
+    res.send(html);
+  });
+});
+
+// Handle 404 for API requests
+app.use(/^\/api\/.*/, (req, res) => {
+  res.status(404).json({
+    message: `API endpoint '${req.originalUrl}' not found`
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled Application Error:', err);
+  res.status(500).json({
+    message: 'An internal server error occurred'
+  });
+});
+
+// Start server locally if run directly (e.g. node api/index.js)
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`IDX SaaS API server running locally on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

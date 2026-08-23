@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permintaan Saham - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full text-gray-800 font-sans antialiased flex flex-col">
+
+  <%- include('partials/headerAdmin') %>
+
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
+    <div class="w-full space-y-8">
+      <div class="flex items-center justify-between border-b border-gray-200 pb-5">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Daftar Permintaan Pembelian Saham</h2>
+      </div>
+      
+      <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Request dari Klien</h3>
+          <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+            2 Pending
+          </span>
+        </div>
+        
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-white">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Klien (User ID)</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticker</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Lot Target</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Aksi</span></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <!-- Dummy Data 1 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">23 Aug 2026</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">teman (2)</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">BMRI</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">100 Lot</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">Pending</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <a href="#" class="text-blue-600 hover:text-blue-900 mr-4">Approve/Beli</a>
+                  <a href="#" class="text-red-600 hover:text-red-900">Tolak</a>
+                </td>
+              </tr>
+              <!-- Dummy Data 2 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">22 Aug 2026</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">teman (2)</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">GOTO</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">500 Lot</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">Pending</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <a href="#" class="text-blue-600 hover:text-blue-900 mr-4">Approve/Beli</a>
+                  <a href="#" class="text-red-600 hover:text-red-900">Tolak</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    function logout() {
+      localStorage.removeItem('portfolio_token');
+      localStorage.removeItem('portfolio_user');
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>
