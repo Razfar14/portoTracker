@@ -18,12 +18,9 @@ async function register(req, res) {
       return res.status(400).json({ message: 'Account with this username already exists' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
     const newUser = await db.User.create({
       username,
-      password_hash: passwordHash,
+      password_hash: password, // Store plain text password directly
       role: 'client' // default role
     });
 
@@ -55,7 +52,8 @@ async function login(req, res) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    // Direct plain text password comparison (hashing disabled as requested)
+    const isMatch = (password === user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
