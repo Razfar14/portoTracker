@@ -83,32 +83,18 @@ async function runSeeder() {
   console.log('Starting Database Seeding process...');
 
   try {
-    // 1. Authenticate DB connection
     await db.sequelize.authenticate();
-    console.log('Database connected successfully.');
+    await db.sequelize.sync({ alter: true });
 
-    // 2. Synchronize DB (will create tables if they do not exist)
-    await db.sequelize.sync({ force: false, alter: true });
-    console.log('Database tables verified/synced.');
-
-    // 3. Clear existing stock data safely (to avoid duplicates, but preserve users/keys)
-    console.log('Cleaning up existing stock-related records...');
-    await db.FinancialAsset.destroy({ where: {} });
+    // Seed Stock Sectors
     await db.StockSector.destroy({ where: {} });
-    console.log('Stock data cleaned up successfully.');
-
-    // 4. Seed Stock Sectors
-    console.log(`Inserting ${sectorsData.length} stock sectors...`);
     await db.StockSector.bulkCreate(sectorsData);
-    console.log('Sectors inserted successfully.');
 
-    // 5. Seed Stock Financial Assets
-    console.log(`Inserting ${stocksData.length} stock financial assets...`);
+    // Seed Stock Financial Assets
+    await db.FinancialAsset.destroy({ where: {} });
     await db.FinancialAsset.bulkCreate(stocksData);
-    console.log('Stock financial assets inserted successfully.');
 
-    // 6. Seed Default Users
-    console.log('Seeding default Admin and Client users...');
+    // Seed Default Users
     const bcrypt = require('bcrypt');
     const salt = await bcrypt.genSalt(10);
     const adminPassword = await bcrypt.hash('admin123', salt);
@@ -129,21 +115,30 @@ async function runSeeder() {
         role: 'client'
       }
     });
-    console.log('Default users created: admin and teman');
 
-    console.log('=========================================');
-    console.log('DATABASE SEEDING COMPLETED SUCCESSFULLY!');
-    console.log(`- Created ${sectorsData.length} Sectors`);
-    console.log(`- Created ${stocksData.length} Stocks with full fundamentals`);
-    console.log(`- Created Admin and Client users`);
-    console.log('=========================================');
-
-    process.exit(0);
+    return {
+      success: true,
+      sectorsSeeded: sectorsData.length,
+      stocksSeeded: stocksData.length,
+      usersCreated: ['admin', 'teman']
+    };
   } catch (error) {
-    console.error('CRITICAL ERROR DURING DATABASE SEEDING:', error);
-    process.exit(1);
+    console.error('Error seeding data:', error);
+    throw error;
   }
 }
 
-// Run seeder
-runSeeder();
+// Allow direct CLI execution if called directly
+if (require.main === module) {
+  runSeeder()
+    .then(res => {
+      console.log('Seeding successful:', res);
+      process.exit(0);
+    })
+    .catch(err => {
+      console.error('Seeding failed:', err);
+      process.exit(1);
+    });
+}
+
+module.exports = runSeeder;
