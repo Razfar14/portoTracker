@@ -20,7 +20,8 @@ router.get('/seed', async (req, res) => {
   }
 
   try {
-    const result = await runSeeder();
+    const isForce = req.query.force === 'true';
+    const result = await runSeeder(isForce);
     return res.status(200).json({
       message: 'Database seeded successfully on production/remote DB!',
       details: result

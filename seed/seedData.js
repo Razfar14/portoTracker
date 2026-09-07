@@ -79,12 +79,16 @@ const stocksData = [
   { sector_id: 8, ticker: 'CTRA', company_name: 'Ciputra Development Tbk', market_cap: '21000000000000', last_price: 1130, per: 11.50, pbv: 0.98, dividend_yield: 1.80, roe: 8.50, debt_to_equity: 0.78, revenue_growth: 6.50 }
 ];
 
-async function runSeeder() {
+async function runSeeder(force = false) {
   console.log('Starting Database Seeding process...');
 
   try {
     await db.sequelize.authenticate();
-    await db.sequelize.sync({ alter: true });
+    if (force) {
+      await db.sequelize.sync({ force: true });
+    } else {
+      await db.sequelize.sync({ alter: true });
+    }
 
     // Seed Stock Sectors
     await db.StockSector.destroy({ where: {} });
