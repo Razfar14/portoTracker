@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     password_hash: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     role: {
       type: DataTypes.ENUM('admin', 'client'),
