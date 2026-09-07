@@ -50,7 +50,12 @@ app.get('/', (req, res) => {
 
 // Serve .html pages as .ejs views (without extension)
 app.get('/:page.html', (req, res) => {
-  res.render(req.params.page);
+  res.render(req.params.page, (err, html) => {
+    if (err) {
+      return res.status(404).json({ message: 'Page not found' });
+    }
+    res.send(html);
+  });
 });
 
 // Fallback for paths without .html

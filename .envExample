@@ -1,0 +1,18 @@
+DB_USER=postgres
+DB_PASSWORD=[PASSWORD]
+DB_DATABASE=idx_saas
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DIALECT=postgres
+
+# Secret key for JWT signing
+JWT_SECRET=[YOUR_SECRET_KEY]
+JWT_EXPIRES=1d
+
+# News RSS Feed Endpoints
+RSS_FEED_MARKET=xxx
+RSS_FEED_NEWS=xxx
+RSS_FEED_ANTARA=xxx
+
+# Database Connection URL
+POSTGRES_URL=xxx
