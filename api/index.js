@@ -51,16 +51,21 @@ app.use(async (req, res, next) => {
 // Mount routes
 app.use('/api', require('../routes/api'));
 
+// Favicon handler
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 // Dynamic Page Routing for EJS
 app.get('/', (req, res) => {
   res.render('index');
 });
 
 // Serve .html pages as .ejs views (without extension)
-app.get('/:page.html', (req, res) => {
-  res.render(req.params.page, (err, html) => {
+app.get('/:page.html', (req, res, next) => {
+  const page = req.params.page;
+  if (!page || page.includes('.')) return next();
+  res.render(page, (err, html) => {
     if (err) {
-      return res.status(404).json({ message: 'Page not found' });
+      return res.status(404).send('<!DOCTYPE html><html><body><h1>404 - Halaman Tidak Ditemukan</h1><a href="/">Kembali ke Login</a></body></html>');
     }
     res.send(html);
   });
@@ -71,9 +76,11 @@ app.get('/:page', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
-  res.render(req.params.page, (err, html) => {
+  const page = req.params.page;
+  if (!page || page.includes('.')) return next();
+  res.render(page, (err, html) => {
     if (err) {
-      return res.status(404).json({ message: 'Page not found' });
+      return res.status(404).send('<!DOCTYPE html><html><body><h1>404 - Halaman Tidak Ditemukan</h1><a href="/">Kembali ke Login</a></body></html>');
     }
     res.send(html);
   });
@@ -86,11 +93,16 @@ app.use(/^\/api\/.*/, (req, res) => {
   });
 });
 
+// General 404 fallback
+app.use((req, res) => {
+  res.status(404).json({ message: 'Resource not found' });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Unhandled Application Error:', err);
+  console.error('Unhandled Application Error:', err.message);
   res.status(500).json({
-    message: 'An internal server error occurred'
+    message: 'An internal server error occurred: ' + err.message
   });
 });
 

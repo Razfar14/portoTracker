@@ -47,25 +47,40 @@ async function login(req, res) {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required' });
+    return res.status(400).json({ message: 'Username dan password wajib diisi' });
   }
 
   try {
-    const user = await db.User.findOne({ where: { username } });
+    const trimmedUsername = String(username).trim();
+    const inputPassword = String(password);
+
+    // Case-insensitive user lookup for smooth UX
+    const user = await db.User.findOne({ 
+      where: db.Sequelize.where(
+        db.Sequelize.fn('LOWER', db.Sequelize.col('username')), 
+        trimmedUsername.toLowerCase()
+      ) 
+    });
+
     if (!user) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Username atau password salah' });
     }
 
     // Verify password with bcrypt hash or plain text fallback
     let isMatch = false;
     if (user.password_hash && (user.password_hash.startsWith('$2b$') || user.password_hash.startsWith('$2a$'))) {
-      isMatch = await bcrypt.compare(password, user.password_hash);
-    } else {
-      isMatch = (password === user.password_hash);
+      try {
+        isMatch = await bcrypt.compare(inputPassword, user.password_hash);
+      } catch (err) {
+        console.error('Bcrypt compare error:', err);
+        isMatch = false;
+      }
+    } else if (user.password_hash) {
+      isMatch = (inputPassword === user.password_hash);
     }
 
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Username atau password salah' });
     }
 
     const token = jwt.sign(
@@ -75,7 +90,7 @@ async function login(req, res) {
     );
 
     return res.status(200).json({
-      message: 'Login successful',
+      message: 'Login berhasil',
       token,
       user: {
         id: user.id,
@@ -85,7 +100,7 @@ async function login(req, res) {
     });
   } catch (error) {
     console.error('Login Error:', error);
-    return res.status(500).json({ message: 'Internal server error during login' });
+    return res.status(500).json({ message: 'Gagal terhubung ke server login: ' + error.message });
   }
 }
 
