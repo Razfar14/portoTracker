@@ -38,6 +38,15 @@
             <input type="password" id="password" required
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
           </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input id="remember-me" name="remember-me" type="checkbox"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer">
+              <label for="remember-me" class="ml-2 block text-sm text-gray-700 cursor-pointer select-none">
+                Remember me
+              </label>
+            </div>
+          </div>
           <button type="submit"
             class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
             Sign In
@@ -51,19 +60,38 @@
   <script>
     const API_BASE = window.location.origin;
 
-    window.onload = () => {
+    function checkExistingSession() {
       const jwtToken = localStorage.getItem('portfolio_token');
       const currentUser = JSON.parse(localStorage.getItem('portfolio_user') || 'null');
 
-      if (jwtToken && currentUser) {
+      if (jwtToken && currentUser && currentUser.role) {
         redirectUser(currentUser.role);
       }
+    }
+
+    function initRememberMe() {
+      const savedUsername = localStorage.getItem('portfolio_remember_username');
+      if (savedUsername) {
+        document.getElementById('username').value = savedUsername;
+        document.getElementById('remember-me').checked = true;
+      }
+    }
+
+    window.addEventListener('pageshow', () => {
+      checkExistingSession();
+      initRememberMe();
+    });
+
+    window.onload = () => {
+      checkExistingSession();
+      initRememberMe();
     };
 
     async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
+      const rememberMe = document.getElementById('remember-me').checked;
       const errEl = document.getElementById('login-error');
 
       try {
@@ -75,6 +103,13 @@
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.message);
+
+        // Handle Remember Me
+        if (rememberMe) {
+          localStorage.setItem('portfolio_remember_username', username);
+        } else {
+          localStorage.removeItem('portfolio_remember_username');
+        }
 
         localStorage.setItem('portfolio_token', data.token);
         localStorage.setItem('portfolio_user', JSON.stringify(data.user));
@@ -89,9 +124,9 @@
 
     function redirectUser(role) {
       if (role === 'admin') {
-        window.location.href = '/admin.html';
+        window.location.replace('/admin.html');
       } else {
-        window.location.href = '/client.html';
+        window.location.replace('/client.html');
       }
     }
   </script>

@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL(15, 2),
       allowNull: false
     },
+    type: {
+      type: DataTypes.ENUM('deposit', 'withdrawal'),
+      allowNull: false,
+      defaultValue: 'deposit'
+    },
     notes: {
       type: DataTypes.STRING,
       allowNull: true

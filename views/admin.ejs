@@ -12,82 +12,361 @@
 
   <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
     <div class="w-full space-y-8">
-      <h2 class="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Add Stock Form -->
-        <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Add Stock Purchase</h3>
-          <form onsubmit="addStock(event)" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">User ID (Client)</label>
-              <input type="number" id="stock-userid" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+      <!-- Header Title & Quick Stats -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5 gap-4">
+        <div>
+          <h2 class="text-3xl font-bold tracking-tight text-gray-900">Admin Dashboard</h2>
+          <p class="text-sm text-gray-500 mt-1">Kelola klien, alokasi pembelian saham, setoran, dan penarikan saldo kas klien Anda</p>
+        </div>
+        <button onclick="loadMyClients()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+          <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh Data
+        </button>
+      </div>
+
+      <!-- Action Forms Grid (4 Columns) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        <!-- 1. Form Tambah Klien Baru -->
+        <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+              </span>
+              <h3 class="text-lg font-semibold text-gray-900">Tambah Klien Baru</h3>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Ticker Symbol (e.g. BBCA)</label>
-              <input type="text" id="stock-ticker" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm uppercase">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Buy Price</label>
-              <input type="number" id="stock-price" step="0.01" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Quantity (Lots/Shares)</label>
-              <input type="number" id="stock-quantity" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            </div>
-            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">Save Purchase</button>
-          </form>
+            <form onsubmit="handleCreateClient(event)" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Username Klien</label>
+                <input type="text" id="new-client-username" required placeholder="Contoh: client_budi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="new-client-password" required placeholder="Minimal 6 karakter" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Deposit Awal (IDR - Opsional)</label>
+                <input type="number" id="new-client-deposit" min="0" step="10000" onkeydown="preventNegative(event)" placeholder="0" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                Daftarkan Klien
+              </button>
+            </form>
+          </div>
         </div>
 
-        <!-- Add Deposit Form -->
-        <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Add Deposit/Fund Transfer</h3>
-          <form onsubmit="addDeposit(event)" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">User ID (Client)</label>
-              <input type="number" id="dep-userid" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        <!-- 2. Form Tambah Pembelian Saham -->
+        <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+              </span>
+              <h3 class="text-lg font-semibold text-gray-900">Beli Saham untuk Klien</h3>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Amount (IDR)</label>
-              <input type="number" id="dep-amount" step="0.01" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <form onsubmit="addStock(event)" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Pilih Klien</label>
+                <select id="stock-userid" required onchange="updateStockClientInfo()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                  <option value="">-- Pilih Klien Anda --</option>
+                </select>
+                <p id="stock-client-balance-info" class="text-xs text-gray-500 mt-1"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Kode Saham (Ticker)</label>
+                <input type="text" id="stock-ticker" required placeholder="Contoh: BBCA" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm uppercase">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Harga Beli (IDR)</label>
+                  <input type="number" id="stock-price" min="1" step="1" onkeydown="preventNegative(event)" required placeholder="9900" oninput="calculateEstimatedCost()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Kuantitas (Lot)</label>
+                  <input type="number" id="stock-quantity" min="1" step="1" onkeydown="preventNegative(event)" required placeholder="10" oninput="calculateEstimatedCost()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+              </div>
+              <div class="p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs flex justify-between items-center text-gray-700">
+                <span>Total Estimasi Biaya (100 lbr/lot):</span>
+                <span id="estimated-cost" class="font-bold text-blue-600">Rp 0</span>
+              </div>
+              <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                Eksekusi Pembelian
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 3. Form Tambah Setoran Deposit Dana -->
+        <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="p-2 bg-green-50 text-green-600 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </span>
+              <h3 class="text-lg font-semibold text-gray-900">Setor Deposit Klien</h3>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-              <input type="text" id="dep-notes" placeholder="e.g. Transfer via BCA" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <form onsubmit="addDeposit(event)" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Pilih Klien</label>
+                <select id="dep-userid" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                  <option value="">-- Pilih Klien Anda --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Nominal Setoran (IDR)</label>
+                <input type="number" id="dep-amount" min="1" step="10000" onkeydown="preventNegative(event)" required placeholder="Contoh: 10000000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Catatan Transaksi</label>
+                <input type="text" id="dep-notes" placeholder="Contoh: Topup via BCA" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
+              </div>
+              <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
+                Simpan Setoran Dana
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 4. Form Tarik Dana Klien (Withdrawal) -->
+        <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="p-2 bg-red-50 text-red-600 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+              </span>
+              <h3 class="text-lg font-semibold text-gray-900">Tarik Dana Klien</h3>
             </div>
-            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">Save Deposit</button>
-          </form>
+            <form onsubmit="addWithdrawal(event)" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Pilih Klien</label>
+                <select id="withdraw-userid" required onchange="updateWithdrawClientInfo()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                  <option value="">-- Pilih Klien Anda --</option>
+                </select>
+                <p id="withdraw-client-balance-info" class="text-xs text-gray-500 mt-1"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Nominal Penarikan (IDR)</label>
+                <input type="number" id="withdraw-amount" min="1" step="10000" onkeydown="preventNegative(event)" required placeholder="Contoh: 5000000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Catatan Penarikan</label>
+                <input type="text" id="withdraw-notes" placeholder="Contoh: Penarikan profit klien" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm">
+              </div>
+              <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors">
+                Proses Penarikan Dana
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tabel Daftar Klien yang Dikelola -->
+      <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Ringkasan Portofolio Klien Anda</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Pantau saldo kas, modal saham, nilai pasar terkini, dan persentase keuntungan/kerugian (PnL)</p>
+          </div>
+          <span id="client-count-badge" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">0 Klien Terdaftar</span>
+        </div>
+
+        <div class="overflow-x-auto ring-1 ring-black ring-opacity-5 rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-gray-500 uppercase sm:pl-6">ID & Username</th>
+                <th class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Sisa Saldo Kas</th>
+                <th class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Modal Beli Saham</th>
+                <th class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Nilai Pasar Terkini</th>
+                <th class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Laba / Rugi (PnL)</th>
+                <th class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Total Setor / Tarik</th>
+                <th class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Total Aset (NAV)</th>
+              </tr>
+            </thead>
+            <tbody id="clients-table-body" class="divide-y divide-gray-200 bg-white">
+              <tr>
+                <td colspan="7" class="px-3 py-8 text-center text-sm text-gray-500">Memuat data klien...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+
     </div>
   </main>
 
   <script>
     const API_BASE = window.location.origin;
-    let jwtToken = localStorage.getItem('portfolio_token');
-    let currentUser = JSON.parse(localStorage.getItem('portfolio_user') || 'null');
+    let cachedClients = [];
 
-    window.onload = () => {
-      if (!jwtToken || !currentUser || currentUser.role !== 'admin') {
-        window.location.href = '/'; // redirect to login
+    function preventNegative(e) {
+      if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+        e.preventDefault();
+      }
+    }
+
+    function formatIDR(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
+    }
+
+    function calculateEstimatedCost() {
+      const price = parseFloat(document.getElementById('stock-price').value) || 0;
+      const qty = parseInt(document.getElementById('stock-quantity').value) || 0;
+      const total = price * qty * 100;
+      document.getElementById('estimated-cost').innerText = formatIDR(total);
+    }
+
+    function updateStockClientInfo() {
+      const selectedId = parseInt(document.getElementById('stock-userid').value);
+      const infoEl = document.getElementById('stock-client-balance-info');
+      const client = cachedClients.find(c => c.id === selectedId);
+      if (client) {
+        infoEl.innerHTML = `Sisa Saldo Kas Klien: <span class="font-bold text-green-600">${formatIDR(client.cash_balance)}</span>`;
+      } else {
+        infoEl.innerText = '';
+      }
+    }
+
+    function updateWithdrawClientInfo() {
+      const selectedId = parseInt(document.getElementById('withdraw-userid').value);
+      const infoEl = document.getElementById('withdraw-client-balance-info');
+      const client = cachedClients.find(c => c.id === selectedId);
+      if (client) {
+        infoEl.innerHTML = `Maksimal Penarikan: <span class="font-bold text-red-600">${formatIDR(client.cash_balance)}</span>`;
+      } else {
+        infoEl.innerText = '';
+      }
+    }
+
+    async function loadMyClients() {
+      const token = localStorage.getItem('portfolio_token');
+      if (!token) return;
+
+      try {
+        const res = await fetch(API_BASE + '/api/auth/my-clients', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.message);
+
+        cachedClients = data.clients || [];
+        document.getElementById('client-count-badge').innerText = `${cachedClients.length} Klien Terdaftar`;
+
+        // Update Dropdowns
+        const stockSelect = document.getElementById('stock-userid');
+        const depSelect = document.getElementById('dep-userid');
+        const withdrawSelect = document.getElementById('withdraw-userid');
+
+        stockSelect.innerHTML = '<option value="">-- Pilih Klien Anda --</option>';
+        depSelect.innerHTML = '<option value="">-- Pilih Klien Anda --</option>';
+        withdrawSelect.innerHTML = '<option value="">-- Pilih Klien Anda --</option>';
+
+        const tableBody = document.getElementById('clients-table-body');
+        tableBody.innerHTML = '';
+
+        if (cachedClients.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="7" class="px-3 py-8 text-center text-sm text-gray-500">
+                Belum ada klien yang terdaftar di bawah akun Anda. Silakan daftarkan klien menggunakan formulir di atas.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        cachedClients.forEach(c => {
+          const optText = `${c.username} (Saldo: ${formatIDR(c.cash_balance)})`;
+          stockSelect.innerHTML += `<option value="${c.id}">${optText}</option>`;
+          depSelect.innerHTML += `<option value="${c.id}">${optText}</option>`;
+          withdrawSelect.innerHTML += `<option value="${c.id}">${optText}</option>`;
+
+          const pnlColor = c.total_pnl_idr >= 0 ? 'text-green-600' : 'text-red-600';
+          const pnlBg = c.total_pnl_idr >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+          const pnlSign = c.total_pnl_idr >= 0 ? '+' : '';
+
+          tableBody.innerHTML += `
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                <span class="font-bold text-gray-900">${c.username}</span>
+                <span class="text-xs text-gray-400 block">ID: #${c.id} (${c.holdings_count} posisi saham)</span>
+              </td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm font-bold ${c.cash_balance >= 0 ? 'text-green-600' : 'text-red-600'}">${formatIDR(c.cash_balance)}</td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-blue-600 font-medium">${formatIDR(c.total_invested)}</td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-gray-900">${formatIDR(c.total_current_value)}</td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm">
+                <span class="inline-flex items-center px-2 py-0.5 rounded border text-xs font-bold ${pnlColor} ${pnlBg}">
+                  ${pnlSign}${c.total_pnl_percent.toFixed(2)}% (${pnlSign}${formatIDR(c.total_pnl_idr)})
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-3 py-4 text-xs text-gray-600">
+                <span class="text-green-600 font-medium block">+ ${formatIDR(c.total_deposit)}</span>
+                <span class="text-red-500 font-medium block">- ${formatIDR(c.total_withdrawal || 0)}</span>
+              </td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-indigo-700">${formatIDR(c.net_asset_value)}</td>
+            </tr>
+          `;
+        });
+
+      } catch (err) {
+        console.error('Error loading clients:', err);
+      }
+    }
+
+    async function handleCreateClient(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('portfolio_token');
+      const username = document.getElementById('new-client-username').value.trim();
+      const password = document.getElementById('new-client-password').value;
+      const initial_deposit = document.getElementById('new-client-deposit').value;
+
+      if (initial_deposit && parseFloat(initial_deposit) < 0) {
+        alert('Nominal deposit awal tidak boleh minus!');
         return;
       }
-      document.getElementById('user-email').innerText = currentUser.username;
-    };
 
-    function logout() {
-      localStorage.removeItem('portfolio_token');
-      localStorage.removeItem('portfolio_user');
-      window.location.href = '/';
+      try {
+        const res = await fetch(API_BASE + '/api/auth/create-client', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ username, password, initial_deposit })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message);
+
+        alert(`Sukses: Klien "${data.client.username}" berhasil dibuat!`);
+        e.target.reset();
+        await loadMyClients();
+      } catch (err) {
+        alert('Gagal membuat klien: ' + err.message);
+      }
     }
 
     async function addStock(e) {
       e.preventDefault();
+      const token = localStorage.getItem('portfolio_token');
+      const price = parseFloat(document.getElementById('stock-price').value);
+      const qty = parseInt(document.getElementById('stock-quantity').value);
+
+      if (price <= 0 || qty <= 0) {
+        alert('Harga beli dan kuantitas lot harus lebih dari 0!');
+        return;
+      }
+
       const payload = {
         user_id: document.getElementById('stock-userid').value,
         ticker: document.getElementById('stock-ticker').value,
-        buy_price: document.getElementById('stock-price').value,
-        quantity: document.getElementById('stock-quantity').value
+        buy_price: price,
+        quantity: qty
       };
       
       try {
@@ -95,27 +374,37 @@
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${jwtToken}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(payload)
         });
-        if (res.ok) {
-          alert('Stock purchase saved!');
-          e.target.reset();
-        } else {
-          const data = await res.json();
-          alert('Error: ' + data.message);
-        }
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message);
+
+        alert(`Sukses: Pembelian saham ${data.transaction.ticker} berhasil dicatat! Sisa saldo kas klien sekarang: ${formatIDR(data.remaining_balance)}`);
+        e.target.reset();
+        document.getElementById('estimated-cost').innerText = 'Rp 0';
+        document.getElementById('stock-client-balance-info').innerText = '';
+        await loadMyClients();
       } catch (err) {
-        alert('Error saving stock');
+        alert('Gagal: ' + err.message);
       }
     }
 
     async function addDeposit(e) {
       e.preventDefault();
+      const token = localStorage.getItem('portfolio_token');
+      const amount = parseFloat(document.getElementById('dep-amount').value);
+
+      if (amount <= 0) {
+        alert('Nominal setoran harus lebih besar dari 0!');
+        return;
+      }
+
       const payload = {
         user_id: document.getElementById('dep-userid').value,
-        amount: document.getElementById('dep-amount').value,
+        amount: amount,
         notes: document.getElementById('dep-notes').value
       };
       
@@ -124,22 +413,63 @@
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${jwtToken}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(payload)
         });
-        if (res.ok) {
-          alert('Deposit saved!');
-          e.target.reset();
-        } else {
-          const data = await res.json();
-          alert('Error: ' + data.message);
-        }
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message);
+
+        alert(`Sukses: Setoran deposit sebesar ${formatIDR(data.deposit.amount)} berhasil dicatat!`);
+        e.target.reset();
+        await loadMyClients();
       } catch (err) {
-        alert('Error saving deposit');
+        alert('Gagal: ' + err.message);
       }
     }
+
+    async function addWithdrawal(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('portfolio_token');
+      const amount = parseFloat(document.getElementById('withdraw-amount').value);
+
+      if (amount <= 0) {
+        alert('Nominal penarikan harus lebih besar dari 0!');
+        return;
+      }
+
+      const payload = {
+        user_id: document.getElementById('withdraw-userid').value,
+        amount: amount,
+        notes: document.getElementById('withdraw-notes').value
+      };
+
+      try {
+        const res = await fetch(API_BASE + '/api/deposits/withdraw', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message);
+
+        alert(`Sukses: Penarikan dana sebesar ${formatIDR(data.withdrawal.amount)} berhasil diproses! Sisa saldo kas klien: ${formatIDR(data.remaining_balance)}`);
+        e.target.reset();
+        document.getElementById('withdraw-client-balance-info').innerText = '';
+        await loadMyClients();
+      } catch (err) {
+        alert('Gagal: ' + err.message);
+      }
+    }
+
+    window.onload = () => {
+      loadMyClients();
+    };
   </script>
 </body>
 </html>
-

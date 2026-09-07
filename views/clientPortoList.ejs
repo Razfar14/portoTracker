@@ -12,84 +12,153 @@
 
   <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
     <div class="w-full space-y-8">
-      <div class="flex items-center justify-between border-b border-gray-200 pb-5">
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Rincian Portofolio Saham Anda</h2>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5 gap-4">
+        <div>
+          <h2 class="text-3xl font-bold tracking-tight text-gray-900">Rincian Portofolio Saham Anda</h2>
+          <p class="text-sm text-gray-500 mt-1">Pantau seluruh posisi saham, nilai pasar saat ini, dan perolehan laba/rugi realtime</p>
+        </div>
+        <button onclick="loadClientData()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+          <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh Data
+        </button>
       </div>
 
-      <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg font-medium text-gray-900">Managed Stocks Overview</h3>
-          <button onclick="loadClientData()" class="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center">
-            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            Refresh Data
-          </button>
+      <!-- Financial Metrics Cards (4 Columns) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- 1. Sisa Saldo Kas -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sisa Saldo Kas Tunai</span>
+          <div id="stat-porto-balance" class="text-2xl font-extrabold text-green-600 mt-2">Rp 0</div>
+          <p class="text-xs text-gray-400 mt-1">Saldo tunai yang tersedia</p>
+        </div>
+
+        <!-- 2. Nilai Pasar Terkini -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nilai Pasar Saham</span>
+          <div id="stat-porto-current-value" class="text-2xl font-extrabold text-blue-600 mt-2">Rp 0</div>
+          <p id="stat-porto-invested" class="text-xs text-gray-400 mt-1">Modal Beli: Rp 0</p>
+        </div>
+
+        <!-- 3. Total Laba / Rugi (PnL) -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Laba / Rugi (PnL)</span>
+          <div id="stat-porto-pnl-idr" class="text-2xl font-extrabold text-gray-900 mt-2">Rp 0</div>
+          <p id="stat-porto-pnl-percent" class="text-xs font-semibold text-gray-500 mt-1">0.00%</p>
+        </div>
+
+        <!-- 4. Total Nilai Aset (NAV) -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Nilai Aset (NAV)</span>
+          <div id="stat-porto-nav" class="text-2xl font-extrabold text-indigo-700 mt-2">Rp 0</div>
+          <p id="stat-porto-flow-sub" class="text-xs text-gray-400 mt-1">Deposit: Rp 0 | Tarik: Rp 0</p>
+        </div>
+      </div>
+
+      <!-- Portfolio Holdings Detailed Table -->
+      <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-900">Rincian Kepemilikan Saham</h3>
+          <span id="holdings-count-badge" class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold">0 Posisi Saham</span>
         </div>
         
-        <div class="overflow-hidden ring-1 ring-black ring-opacity-5 rounded-lg">
+        <div class="overflow-x-auto ring-1 ring-black ring-opacity-5 rounded-lg">
           <table class="min-w-full divide-y divide-gray-300">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Tanggal Pembelian</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Ticker</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Harga Beli</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Kuantitas (Lot)</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Nilai Beli</th>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-gray-500 uppercase sm:pl-6">Tanggal</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Ticker</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Harga Beli</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Harga Pasar Terkini</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Kuantitas Lot</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Modal Beli (IDR)</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Nilai Pasar (IDR)</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Laba / Rugi (PnL)</th>
               </tr>
             </thead>
             <tbody id="portfolio-list" class="divide-y divide-gray-200 bg-white">
-              <!-- JS Injected -->
               <tr>
-                <td colspan="5" class="px-3 py-8 text-center text-sm text-gray-500">Loading portfolio data...</td>
+                <td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">Memuat data portofolio...</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+
     </div>
   </main>
   
   <script>
     const API_BASE = window.location.origin;
-    let jwtToken = localStorage.getItem('portfolio_token');
     
-    function logout() {
-      localStorage.removeItem('portfolio_token');
-      localStorage.removeItem('portfolio_user');
-      window.location.href = '/';
-    }
-
     function formatNumber(num) {
-      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(num);
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
     }
     
     function formatDate(dateStr) {
+      if (!dateStr) return '-';
       return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
     async function loadClientData() {
-      if (!jwtToken) return;
+      const token = localStorage.getItem('portfolio_token');
+      if (!token) return;
+
       try {
         const portRes = await fetch(API_BASE + '/api/portfolio/my', {
-          headers: { 'Authorization': `Bearer ${jwtToken}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         const portData = await portRes.json();
+
+        if (portData.summary) {
+          const s = portData.summary;
+          document.getElementById('stat-porto-balance').innerText = formatNumber(s.cash_balance);
+          document.getElementById('stat-porto-current-value').innerText = formatNumber(s.total_current_value);
+          document.getElementById('stat-porto-invested').innerText = `Modal Beli: ${formatNumber(s.total_invested)}`;
+
+          const isProfit = s.total_pnl_idr >= 0;
+          const sign = isProfit ? '+' : '';
+          const pnlIdrEl = document.getElementById('stat-porto-pnl-idr');
+          const pnlPctEl = document.getElementById('stat-porto-pnl-percent');
+
+          pnlIdrEl.innerText = `${sign}${formatNumber(s.total_pnl_idr)}`;
+          pnlIdrEl.className = `text-2xl font-extrabold mt-2 ${isProfit ? 'text-green-600' : 'text-red-600'}`;
+          pnlPctEl.innerText = `${sign}${s.total_pnl_percent.toFixed(2)}% dari modal`;
+          pnlPctEl.className = `text-xs font-semibold mt-1 ${isProfit ? 'text-green-600' : 'text-red-600'}`;
+
+          document.getElementById('stat-porto-nav').innerText = formatNumber(s.net_asset_value);
+          document.getElementById('stat-porto-flow-sub').innerText = `Deposit: ${formatNumber(s.total_deposit)} | Tarik: ${formatNumber(s.total_withdrawal || 0)}`;
+        }
+
         const pList = document.getElementById('portfolio-list');
         pList.innerHTML = '';
-        if (portData.portfolio && portData.portfolio.length > 0) {
-          portData.portfolio.forEach(p => {
-            const total = p.buy_price * p.quantity * 100; // 1 lot = 100 lembar
+        const holdings = portData.portfolio || [];
+        document.getElementById('holdings-count-badge').innerText = `${holdings.length} Posisi Saham`;
+
+        if (holdings.length > 0) {
+          holdings.forEach(p => {
+            const isProfit = p.pnl_idr >= 0;
+            const sign = isProfit ? '+' : '';
+            const pnlBadge = isProfit ? 'text-green-700 bg-green-50 border-green-200' : 'text-red-700 bg-red-50 border-red-200';
+
             pList.innerHTML += `
               <tr class="hover:bg-gray-50 transition-colors">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">${formatDate(p.transaction_date)}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-blue-600">${p.ticker}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">${formatNumber(p.buy_price)}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${p.quantity}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">${formatNumber(total)}</td>
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs text-gray-500 sm:pl-6">${formatDate(p.transaction_date || p.createdAt)}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-blue-600">${p.ticker}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700">${formatNumber(p.buy_price)}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-gray-900">${formatNumber(p.current_price || p.buy_price)}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700 font-medium">${p.quantity} Lot (${p.shares} lbr)</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700">${formatNumber(p.buy_total)}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-gray-900">${formatNumber(p.current_total)}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded border text-xs font-bold ${pnlBadge}">
+                    ${sign}${p.pnl_percent.toFixed(2)}% (${sign}${formatNumber(p.pnl_idr)})
+                  </span>
+                </td>
               </tr>
             `;
           });
         } else {
-          pList.innerHTML = '<tr><td colspan="5" class="px-3 py-8 text-center text-sm text-gray-500">Belum ada data saham.</td></tr>';
+          pList.innerHTML = '<tr><td colspan="8" class="px-3 py-8 text-center text-sm text-gray-500">Belum ada data posisi saham.</td></tr>';
         }
       } catch (err) {
         console.error(err);

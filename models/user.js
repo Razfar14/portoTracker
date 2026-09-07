@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
     role: {
       type: DataTypes.ENUM('admin', 'client'),
       defaultValue: 'client'
+    },
+    admin_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     tableName: 'users',
@@ -25,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = (models) => {
+    User.belongsTo(models.User, {
+      foreignKey: 'admin_id',
+      as: 'admin'
+    });
+    User.hasMany(models.User, {
+      foreignKey: 'admin_id',
+      as: 'clients'
+    });
     User.hasMany(models.PortfolioTransaction, {
       foreignKey: 'user_id',
       as: 'portfolio'

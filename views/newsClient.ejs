@@ -49,12 +49,6 @@
   <script>
     let currentCategory = 'latest';
 
-    function logout() {
-      localStorage.removeItem('portfolio_token');
-      localStorage.removeItem('portfolio_user');
-      window.location.href = '/';
-    }
-
     async function fetchNews(category = 'latest') {
       const container = document.getElementById('news-container');
       container.innerHTML = `

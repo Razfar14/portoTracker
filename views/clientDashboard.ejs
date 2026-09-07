@@ -30,12 +30,6 @@
   </main>
   
   <script>
-    function logout() {
-      localStorage.removeItem('portfolio_token');
-      localStorage.removeItem('portfolio_user');
-      window.location.href = '/';
-    }
-
     // Chart Loading logic
     function loadChart() {
       const container = document.getElementById('tradingview-widget-container');

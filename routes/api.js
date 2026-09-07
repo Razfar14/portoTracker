@@ -7,6 +7,7 @@ router.use('/auth', require('./authRoutes'));
 router.use('/portfolio', require('./portfolioRoutes'));
 router.use('/deposits', require('./depositRoutes'));
 router.use('/news', require('./newsRoutes'));
+router.use('/stocks', require('./stockRoutes'));
 
 // Secure Seeder Endpoint: Requires secret key matching JWT_SECRET or SEED_SECRET
 router.get('/seed', async (req, res) => {

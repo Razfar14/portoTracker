@@ -12,5 +12,6 @@ router.get('/my', depositController.getMyDeposits);
 // Admin Routes
 router.get('/all', authenticateAdmin, depositController.getAllDeposits);
 router.post('/', authenticateAdmin, depositController.addDeposit);
+router.post('/withdraw', authenticateAdmin, depositController.addWithdrawal);
 
 module.exports = router;

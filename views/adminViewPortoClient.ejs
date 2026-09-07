@@ -12,65 +12,282 @@
 
   <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
     <div class="w-full space-y-8">
-      <div class="flex items-center justify-between border-b border-gray-200 pb-5">
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Pantau Portofolio Klien</h2>
+      
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5 gap-4">
+        <div>
+          <h2 class="text-3xl font-bold tracking-tight text-gray-900">Pantau Portofolio & PnL Klien</h2>
+          <p class="text-sm text-gray-500 mt-1">Perbandingan harga beli vs harga pasar realtime, keuntungan/kerugian (PnL), dan saldo kas</p>
+        </div>
+        <button onclick="loadClientPortfolioData()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+          <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh Data
+        </button>
       </div>
 
-      <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm">
-        <div class="flex justify-between items-center mb-6">
-          <div class="flex gap-4 items-center">
-            <h3 class="text-lg font-medium text-gray-900">Pilih Klien:</h3>
-            <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-              <option value="2">teman (User ID: 2)</option>
-              <option value="all">Semua Klien</option>
-            </select>
+      <!-- Filter Section -->
+      <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <label for="client-filter" class="text-sm font-semibold text-gray-700 whitespace-nowrap">Pilih Klien:</label>
+          <select id="client-filter" onchange="renderSelectedClientView()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-blue-500 focus:border-blue-500 min-w-[240px]">
+            <option value="all">Semua Klien Saya</option>
+          </select>
+        </div>
+        <div id="client-status-badge" class="text-xs text-gray-500">
+          Memuat data...
+        </div>
+      </div>
+
+      <!-- Financial Metrics Cards (4 Columns) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- 1. Sisa Saldo Kas -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sisa Saldo Kas Tunai</span>
+            <span class="p-2 bg-green-50 text-green-600 rounded-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </span>
           </div>
-          <button class="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center">
-            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            Refresh
-          </button>
+          <div class="mt-2">
+            <div id="stat-cash-balance" class="text-2xl font-extrabold text-green-600">Rp 0</div>
+            <p class="text-xs text-gray-400 mt-1">Kas siap dibelanjakan</p>
+          </div>
+        </div>
+
+        <!-- 2. Nilai Pasar Terkini Saham -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nilai Pasar Saham</span>
+            <span class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            </span>
+          </div>
+          <div class="mt-2">
+            <div id="stat-current-value" class="text-2xl font-extrabold text-blue-600">Rp 0</div>
+            <p id="stat-invested-sub" class="text-xs text-gray-400 mt-1">Modal Beli: Rp 0</p>
+          </div>
+        </div>
+
+        <!-- 3. Total Keuntungan / Kerugian (PnL) -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Laba / Rugi (PnL)</span>
+            <span id="pnl-icon-container" class="p-2 bg-gray-50 text-gray-600 rounded-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </span>
+          </div>
+          <div class="mt-2">
+            <div id="stat-pnl-idr" class="text-2xl font-extrabold text-gray-900">Rp 0</div>
+            <p id="stat-pnl-percent" class="text-xs font-semibold text-gray-500 mt-1">0.00%</p>
+          </div>
+        </div>
+
+        <!-- 4. Total Nilai Aset Bersih (NAV) -->
+        <div class="bg-white p-5 border border-gray-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Aset (NAV)</span>
+            <span class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            </span>
+          </div>
+          <div class="mt-2">
+            <div id="stat-net-asset" class="text-2xl font-extrabold text-indigo-700">Rp 0</div>
+            <p id="stat-flow-sub" class="text-xs text-gray-400 mt-1">Setor: Rp 0 | Tarik: Rp 0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Holdings Table -->
+      <div class="bg-white p-6 border border-gray-200 rounded-xl shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-900">Rincian Posisi Saham & Realtime PnL</h3>
+          <span id="holdings-badge" class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold">0 Transaksi Saham</span>
         </div>
         
-        <div class="overflow-hidden ring-1 ring-black ring-opacity-5 rounded-lg">
+        <div class="overflow-x-auto ring-1 ring-black ring-opacity-5 rounded-lg">
           <table class="min-w-full divide-y divide-gray-300">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Klien</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Ticker</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Harga Rata-Rata</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Lot</th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Investasi (IDR)</th>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-gray-500 uppercase sm:pl-6">Tanggal</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Klien</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Ticker</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Harga Beli</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Harga Realtime</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Lot (Lembar)</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Modal Beli</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Nilai Pasar</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase">Laba / Rugi (PnL)</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
-              <!-- Placeholder Data -->
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">teman (2)</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-blue-600">BBCA</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">Rp 10.200</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">50</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">Rp 51.000.000</td>
-              </tr>
-              <tr class="hover:bg-gray-50 transition-colors">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">teman (2)</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-blue-600">BREN</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">Rp 8.500</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">100</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">Rp 85.000.000</td>
+            <tbody id="portfolio-table-body" class="divide-y divide-gray-200 bg-white">
+              <tr>
+                <td colspan="9" class="px-3 py-8 text-center text-sm text-gray-500">Memuat data portofolio...</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+
     </div>
   </main>
-  
+
   <script>
-    function logout() {
-      localStorage.removeItem('portfolio_token');
-      localStorage.removeItem('portfolio_user');
-      window.location.href = '/';
+    const API_BASE = window.location.origin;
+    let allClientsData = [];
+    let allPortfoliosData = [];
+
+    function formatIDR(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
     }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function loadClientPortfolioData() {
+      const token = localStorage.getItem('portfolio_token');
+      if (!token) return;
+
+      try {
+        const [clientsRes, portoRes] = await Promise.all([
+          fetch(API_BASE + '/api/auth/my-clients', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(API_BASE + '/api/portfolio/all', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        const clientsData = await clientsRes.json();
+        const portoData = await portoRes.json();
+
+        if (!clientsRes.ok) throw new Error(clientsData.message);
+        if (!portoRes.ok) throw new Error(portoData.message);
+
+        allClientsData = clientsData.clients || [];
+        allPortfoliosData = portoData.portfolio || [];
+
+        // Update Client Selector Dropdown
+        const filterSelect = document.getElementById('client-filter');
+        const prevValue = filterSelect.value;
+        filterSelect.innerHTML = '<option value="all">Semua Klien Saya</option>';
+
+        allClientsData.forEach(c => {
+          filterSelect.innerHTML += `<option value="${c.id}">${c.username} (ID: #${c.id})</option>`;
+        });
+
+        if (prevValue && Array.from(filterSelect.options).some(o => o.value === prevValue)) {
+          filterSelect.value = prevValue;
+        }
+
+        renderSelectedClientView();
+
+      } catch (err) {
+        console.error('Error loading client portfolio data:', err);
+      }
+    }
+
+    function renderSelectedClientView() {
+      const selectedValue = document.getElementById('client-filter').value;
+      const statusBadge = document.getElementById('client-status-badge');
+      const tableBody = document.getElementById('portfolio-table-body');
+      const holdingsBadge = document.getElementById('holdings-badge');
+
+      let targetClients = [];
+      let targetTransactions = [];
+
+      if (selectedValue === 'all') {
+        targetClients = allClientsData;
+        targetTransactions = allPortfoliosData;
+        statusBadge.innerText = `Menampilkan ringkasan seluruh ${allClientsData.length} klien Anda`;
+      } else {
+        const parsedId = parseInt(selectedValue);
+        const client = allClientsData.find(c => c.id === parsedId);
+        if (client) {
+          targetClients = [client];
+          statusBadge.innerText = `Menampilkan detail portofolio khusus untuk ${client.username}`;
+        }
+        targetTransactions = allPortfoliosData.filter(p => p.user_id === parsedId);
+      }
+
+      // Aggregate Metrics
+      const totalCashBalance = targetClients.reduce((sum, c) => sum + (c.cash_balance || 0), 0);
+      const totalInvested = targetClients.reduce((sum, c) => sum + (c.total_invested || 0), 0);
+      const totalCurrentValue = targetClients.reduce((sum, c) => sum + (c.total_current_value || 0), 0);
+      const totalPnlIdr = totalCurrentValue - totalInvested;
+      const totalPnlPercent = totalInvested > 0 ? (totalPnlIdr / totalInvested) * 100 : 0;
+      const totalDeposit = targetClients.reduce((sum, c) => sum + (c.total_deposit || 0), 0);
+      const totalWithdrawal = targetClients.reduce((sum, c) => sum + (c.total_withdrawal || 0), 0);
+      const netAssetValue = totalCashBalance + totalCurrentValue;
+
+      // Update Card Elements
+      document.getElementById('stat-cash-balance').innerText = formatIDR(totalCashBalance);
+      document.getElementById('stat-current-value').innerText = formatIDR(totalCurrentValue);
+      document.getElementById('stat-invested-sub').innerText = `Modal Beli: ${formatIDR(totalInvested)}`;
+
+      const pnlIdrEl = document.getElementById('stat-pnl-idr');
+      const pnlPctEl = document.getElementById('stat-pnl-percent');
+      const pnlIcon = document.getElementById('pnl-icon-container');
+
+      const isProfit = totalPnlIdr >= 0;
+      const sign = isProfit ? '+' : '';
+      pnlIdrEl.innerText = `${sign}${formatIDR(totalPnlIdr)}`;
+      pnlIdrEl.className = `text-2xl font-extrabold ${isProfit ? 'text-green-600' : 'text-red-600'}`;
+      
+      pnlPctEl.innerText = `${sign}${totalPnlPercent.toFixed(2)}% dari modal`;
+      pnlPctEl.className = `text-xs font-semibold ${isProfit ? 'text-green-600' : 'text-red-600'} mt-1`;
+
+      pnlIcon.className = `p-2 rounded-lg ${isProfit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`;
+
+      document.getElementById('stat-net-asset').innerText = formatIDR(netAssetValue);
+      document.getElementById('stat-flow-sub').innerText = `Setor: ${formatIDR(totalDeposit)} | Tarik: ${formatIDR(totalWithdrawal)}`;
+
+      // Render Holdings Table
+      holdingsBadge.innerText = `${targetTransactions.length} Transaksi Saham`;
+      tableBody.innerHTML = '';
+
+      if (targetTransactions.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="9" class="px-3 py-8 text-center text-sm text-gray-500">
+              Belum ada transaksi pembelian saham untuk ${selectedValue === 'all' ? 'klien-klien Anda' : 'klien ini'}.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      targetTransactions.forEach(t => {
+        const username = t.user ? t.user.username : (allClientsData.find(c => c.id === t.user_id)?.username || '-');
+        const buyTotal = t.buy_total || (parseFloat(t.buy_price) * parseInt(t.quantity) * 100);
+        const currentTotal = t.current_total || (parseFloat(t.current_price || t.buy_price) * parseInt(t.quantity) * 100);
+        const pnlIdr = t.pnl_idr !== undefined ? t.pnl_idr : (currentTotal - buyTotal);
+        const pnlPct = t.pnl_percent !== undefined ? t.pnl_percent : (buyTotal > 0 ? (pnlIdr / buyTotal) * 100 : 0);
+
+        const isRowProfit = pnlIdr >= 0;
+        const rowSign = isRowProfit ? '+' : '';
+        const badgeColor = isRowProfit ? 'text-green-700 bg-green-50 border-green-200' : 'text-red-700 bg-red-50 border-red-200';
+
+        tableBody.innerHTML += `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-xs text-gray-500 sm:pl-6">${formatDate(t.transaction_date || t.createdAt)}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-gray-900">${username}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm font-extrabold text-blue-600">${t.ticker}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700">${formatIDR(t.buy_price)}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-gray-900">${formatIDR(t.current_price || t.buy_price)}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700 font-medium">${t.quantity} Lot (${t.quantity * 100} lbr)</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-700">${formatIDR(buyTotal)}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-gray-900">${formatIDR(currentTotal)}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+              <span class="inline-flex items-center px-2 py-0.5 rounded border text-xs font-bold ${badgeColor}">
+                ${rowSign}${pnlPct.toFixed(2)}% (${rowSign}${formatIDR(pnlIdr)})
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    window.onload = () => {
+      loadClientPortfolioData();
+    };
   </script>
 </body>
 </html>
